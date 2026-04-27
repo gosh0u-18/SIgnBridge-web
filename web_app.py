@@ -203,12 +203,18 @@ with col2:
 
 with col1:
     ctx = webrtc_streamer(
-        key="signbridge-camera",
-        mode=WebRtcMode.SENDRECV,
-        video_processor_factory=SignBridgeProcessor,
-        media_stream_constraints={"video": True, "audio": False},
-        async_processing=True,
-    )
+    key="signbridge-camera",
+    mode=WebRtcMode.SENDRECV,
+    video_processor_factory=SignBridgeProcessor,
+    media_stream_constraints={"video": True, "audio": False},
+    rtc_configuration={
+        "iceServers": [
+            {"urls": ["stun:stun.l.google.com:19302"]},
+            {"urls": ["stun:stun1.l.google.com:19302"]},
+        ]
+    },
+    async_processing=True,
+)
 
 if ctx.video_processor:
     with ctx.video_processor.lock:
