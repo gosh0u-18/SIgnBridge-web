@@ -4,7 +4,6 @@ import zipfile
 import tempfile
 import threading
 from collections import deque
-
 import av
 import cv2
 import joblib
@@ -19,14 +18,8 @@ from utils import (
     extract_dual_hand_features,
 )
 
-# =========================
-# CONFIG
-# =========================
 st.set_page_config(page_title="SignBridge Web", layout="wide")
 
-# =========================
-# LOAD MODEL
-# =========================
 @st.cache_resource
 def load_model():
     bundle = joblib.load("signbridge_model.joblib")
@@ -35,13 +28,8 @@ def load_model():
 
 pipeline, label_encoder = load_model()
 
-# =========================
-# FONT LOADING FOR CYRILLIC
-# =========================
 @st.cache_resource
 def load_cyrillic_font(size=34):
-    # Put this font file in the same folder as web_app.py in your repo:
-    # Roboto-VariableFont_wdth,wght.ttf
     font_paths = [
         "Roboto-VariableFont_wdth,wght.ttf",
         os.path.join(os.path.dirname(__file__), "Roboto-VariableFont_wdth,wght.ttf"),
@@ -62,9 +50,6 @@ def load_cyrillic_font(size=34):
 
 CYRILLIC_FONT = load_cyrillic_font(34)
 
-# =========================
-# ZIP DOWNLOAD
-# =========================
 def create_zip():
     temp_dir = tempfile.mkdtemp()
     zip_path = os.path.join(temp_dir, "signbridge_desktop.zip")
@@ -78,10 +63,6 @@ def create_zip():
 
     return zip_path
 
-
-# =========================
-# VIDEO PROCESSOR
-# =========================
 class SignBridgeProcessor(VideoProcessorBase):
     def __init__(self):
         self.lock = threading.Lock()
@@ -186,11 +167,6 @@ class SignBridgeProcessor(VideoProcessorBase):
         with self.lock:
             overlay_text = f"{self.status} | {self.confidence:.2f}"
 
-        # =========================
-        # CYRILLIC OVERLAY WITH PIL
-        # OpenCV cv2.putText does NOT support Cyrillic.
-        # Convert BGR -> RGB before PIL, then RGB -> BGR after drawing.
-        # =========================
         image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         img_pil = Image.fromarray(image_rgb)
         draw = ImageDraw.Draw(img_pil, "RGBA")
@@ -230,10 +206,6 @@ class SignBridgeProcessor(VideoProcessorBase):
         except Exception:
             pass
 
-
-# =========================
-# UI
-# =========================
 st.title("🖐️ SignBridge Web")
 st.caption("Глас за хората без глас.")
 
